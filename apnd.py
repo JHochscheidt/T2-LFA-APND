@@ -46,7 +46,10 @@ def readRegras(arquivoRegras):
         #regra[0] possui o estado
         #regra[1] possui o que sera removido da fita
         #regra[2] possui o que sera tirado do topo da pilha
-        print ("regra --> " + str(regra))
+        estado = regra[0]
+        removeDaFita = regra[1]
+        removeDaPilha = regra[2]
+        #print ("regra --> " + str(regra))
 
         transicoes = linha[1]
         #print ("transicoes --> " + str(transicoes))
@@ -89,15 +92,23 @@ def readRegras(arquivoRegras):
 
             #split pra pegar o estado e o que vai ser empilhado
             transicaoTemp = transicaoTemp.split(',')
-            print transicaoTemp
+            #print transicaoTemp
             #transicaoTemp[0] tem o estado
             #transicaoTemp[1] tem o que vai ser empilhado
             transicoes[indice] = transicaoTemp
             #adicionar essas informacoes no vetor temporario de transicoes
             transicoesTemp.append([transicaoTemp[0], transicaoTemp[1]])
 
-        print "after () --> ", transicoes
-        print "temp trans --> ", transicoesTemp
+        #aqui ja pode adicionar a regra e suas transicoes
+        regras.append(Regra(estado, removeDaFita, removeDaPilha, transicoesTemp))
+        #print "after () --> ", transicoes
+        #print "temp trans --> ", transicoesTemp
+
+    for regra in regras:
+        print "estado -->", regra._estado
+        print "remFita -->", regra._removeFita
+        print "remPilha -->", regra._removePilha
+        print "transicoes -->", regraself._transicoes
 
 
 
