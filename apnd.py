@@ -151,10 +151,10 @@ def buscaRegra(topoPilha): #estado atual tem uma tripla Ex. (0,&,E)
 
 
 def removeDaFita(caractere, fitaTemp):
-    print "ch-->[", caractere, "]"
-    print "fita[0][", fitaTemp[0], "]"
+    #print "ch-->[", caractere, "]"
+    #print "fita[0][", fitaTemp[0], "]"
     #print "fita[1][", fitaTemp[1], "]"
-    print "fita-->[", fitaTemp, "]"
+    #print "fita-->[", fitaTemp, "]"
 
     #cu = input("kkk")
     if caractere != '&':
@@ -166,7 +166,8 @@ def removeDaFita(caractere, fitaTemp):
         else:
             #print "caracteres nao batem"
             print "sentenca invalida"
-            sys.exit()
+            return False
+            #sys.exit()
             #print caractere, " ", fitaTemp[0][0]
     #print "teste ", fitaTemp
     return fitaTemp
@@ -181,93 +182,85 @@ def removeDaPilha(caractere, pilhaTemp):
             print "afterP[", pilhaTemp, "]"
             return pilhaTemp
         else:
-            #print "topo da pilha nao bate"
+            print "topo da pilha nao bate"
             #print caractere, " ", pilhaTemp[len(pilhaTemp)-1]
-            sys.exit()
+            #sys.exit()
+            return False
+
     return pilhaTemp
 
 
 def explosaoDeEstados(estadoInicial, pilhaTemp, fitaTemp):
-    print "\n\n"
-    print "fitaTemp-->[", fitaTemp, "]"
-    print "pilhaTemp-->[", pilhaTemp, "]"
-    #pilhaTemporaria = pilhaTemp
-    #print pilhaTemp
-    #print pilhaTemporaria
-    #fitaTemporaria = fitaTemp
-    if len(pilhaTemp) == 0:
-        if len(fitaTemp) == 0:
-            print "reconhece cadeia"
-            sys.exit()
-        else:
-            return PILHA_VAZIA_FITA_NAO
-    else:
-        if len(fitaTemp) == 0:
-            return FITA_VAZIA_PILHA_NAO
 
-    
-    topoPilha = pilhaTemp[len(pilhaTemp)-1]
-    print 'tp p-->', topoPilha
-    #indice atual possui qual regra tem alguma transicao q remove o q tem no topo da pilha
-    indiceRegraAtual = buscaRegra(topoPilha)
-    if(indiceRegraAtual == -1):
-        print ("transicao impossivel")
-        sys.exit()
+    while True:
+        a = input()
 
-        regraAtual = regras[indiceRegraAtual]
+        print "\n\n"
+        print "fitaTemp-->[", fitaTemp, "]"
+        print "pilhaTemp-->[", pilhaTemp, "]"
+        if len(pilhaTemp) == 0:
+            if len(fitaTemp) == 0:
+                print "sentença valida"
+                sys.exit()
+            else:
+                print "cu sentença invalida"
+                sys.exit()
+        elif len(fitaTemp) == 0:
+            if len(pilhaTemp) == 0:
+                print "sentença valida"
+                sys.exit()
+            else:
+                print "sentença invalida"
+                sys.exit()
 
-        if regraAtual._removePilha == pilhaTemp[len(pilhaTemp)-1]:
-            for transicao in regra._transicoes:
-                #pilha vazia
-                if len(pilhaTemp) == 0:
-                    #fita vazia
-                    if len(fitaTemp) == 0:
-                        print "reconhece a cadeia"
-                        sys.exit()
-                    #fita nao vazia
-                    else:
-                        print "ainda ha coisas na fita"
-                        ESTADO_PILHA_FITA = PILHA_VAZIA_FITA_NAO
-                #pilha nao vazia
+        topoPilha = pilhaTemp[len(pilhaTemp)-1]
+        #pra saber qual regra sera aplicada
+        #regraAtual tem o indice ta regra
+        regraAtual = buscaRegra(topoPilha)
+        print "sei de nada"
+        for transicao in regras[regraAtual]._transicoes:
+            if len(pilhaTemp) == 0:
+                if len(fitaTemp) == 0:
+                    print "sentença valida"
+                    sys.exit()
                 else:
-                    #fita vazia
-                    if len(fitaTemp) == 0:
-                        print "acabou fita e ainda ha coisas na pilha"
-                        ESTADO_PILHA_FITA = FITA_VAZIA_PILHA_NAO
-                    #fita nao vazia
-                    else:
-                        ESTADO_PILHA_FITA = CONTINUA
-
-                if ESTADO_PILHA_FITA == CONTINUA:
-                    print "removerFita--> [", regraAtual._removeFita, "]"
-                    print "removerPilha--> [", regraAtual._removePilha, "]"
-                    print "fita[0]-->[", fita[0],"]"
-                    print "tpPP-->[", pilhaTemp[len(pilhaTemp)-1], "]"
-                    if fitaTemp[0] == pilhaTemp[len(pilhaTemp)-1]:
-                        fitaTemp = removeDaFita(regraAtual._removeFita, fitaTemp)
-                        pilhaTemp = removeDaPilha(regraAtual._removePilha, pilhaTemp)
-                    else:
-                        pilhaTemp = removeDaPilha(regraAtual._removePilha, pilhaTemp)
-
-                    #cu = input("kk")
-                    #print cu
-                    #print "f --> ", fitaTemporaria
-                    #print "P --> ", pilhaTemporaria
-                    empilhar = transicao[1] #transicao[1] é o que vai ser empilhado
-                    print "empilhar--> [", empilhar, "]"
-                    empilhar = empilhar[::-1]
-                    for c in empilhar:
-                        if c != '&':
-                            pilhaTemp.append(c)
-
-                    retorno = explosaoDeEstados(estadoInicial, pilhaTemp, fitaTemp)
-                    if retorno == FITA_VAZIA_PILHA_NAO or retorno == PILHA_VAZIA_FITA_NAO:
-                        #lembrar de reconstruir a pilha e fita
-                        continue
-                    else:
-                        return CONTINUA
-                else:
+                    print "cu sentença invalida"
+                    #sys.exit()
                     continue
+            elif len(fitaTemp) == 0:
+                if len(pilhaTemp) == 0:
+                    print "sentença valida"
+                    sys.exit()
+                else:
+                    print "sentença invalida"
+                    #sys.exit()
+                    continue
+            else:
+                #print "FF ", fitaTemp
+                fitaAuxTemp = removeDaFita(regras[regraAtual]._removeFita, fitaTemp)
+                #print "FFF ", fitaTemp
+                if fitaAuxTemp == False:
+                    continue
+                else:
+                    fitaTemp = fitaAuxTemp
+
+                pilhaAuxTemp = removeDaPilha(regras[regraAtual]._removePilha, pilhaTemp)
+                if pilhaAuxTemp == False:
+                    continue
+                else:
+                    pilhaTemp = pilhaAuxTemp
+
+                empilhar = transicao[1] #transicao[1] é o que vai ser empilhado
+                print "empilhar--> [", empilhar, "]"
+                empilhar = empilhar[::-1]
+                for c in empilhar:
+                    if c != '&':
+                        pilhaTemp.append(c)
+
+
+
+        #a = input()
+
 
 try:
     arquivoFita = sys.argv[1]
