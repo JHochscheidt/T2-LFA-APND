@@ -39,16 +39,22 @@ def readRegras(arquivoRegras):
             print ("erro na declaracao da regra" + str(regra))
             sys.exit()
         #remove os parenteses da regra
-        regra = regra.replace("(","")
-        regra = regra.replace(")","")
+        #regra = regra.replace("(0","0")
+        #regra = regra.replace("))",")")
+        #regra = regra.replace("()","(")
+        #regra = regra.replace("))",")")
         ## regra possui campos separados por virgula, entao faz split
         regra = regra.split(',')
         #regra[0] possui o estado
         #regra[1] possui o que sera removido da fita
         #regra[2] possui o que sera tirado do topo da pilha
         estado = regra[0]
+        estado = estado[1:] # pra tirar o "(" do inicio da regra
+        print "estado -->", estado
         removeDaFita = regra[1]
         removeDaPilha = regra[2]
+        removeDaPilha = removeDaPilha[0:-1] # remove ")" do do final da regra
+        print "remove Pilha -->", removeDaPilha
         #print ("regra --> " + str(regra))
 
         transicoes = linha[1]
