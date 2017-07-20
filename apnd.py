@@ -108,7 +108,7 @@ def readRegras(arquivoRegras):
         print "estado -->", regra._estado
         print "remFita -->", regra._removeFita
         print "remPilha -->", regra._removePilha
-        print "transicoes -->", regraself._transicoes
+        print "transicoes -->", regra._transicoes
 
 
 
