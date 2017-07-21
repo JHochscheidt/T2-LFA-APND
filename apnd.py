@@ -1,7 +1,7 @@
 # coding: utf-8
 import sys
 import os
-
+import string
 
 
 
@@ -24,7 +24,9 @@ class Transicao(object):
 regras = [] #vetor com as regras
 fita = []
 pilha = []
-
+saida = []
+terminals = []
+noTerminals = []
 PILHA_VAZIA_FITA_NAO = -1
 FITA_VAZIA_PILHA_NAO = -2
 CONTINUA = -3
@@ -87,19 +89,20 @@ def readRegras(arquivoRegras):
         #remove os chaves das transicoes
         transicoes = transicoes.replace("{","")
         transicoes = transicoes.replace("}","")
-        transicoes = transicoes.replace("<","")
         transicoes = transicoes.replace(">","")
+        transicoes = transicoes.replace("<","")
         ## regra possui campos separados por virgula e parentes "),(", entao faz split
         transicoes = transicoes.split("),(")
         ## remover "(" da primeira transicao
 
         #print ("transicoes --> " + str(transicoes))
         #print ("Len " + str(len(transicoes)))
-
+        #print transicoes
         transicoesTemp = []
         for indice in range(0, len(transicoes)):
             # se for a primeira transicao, remover os parenteses sobrando
             transicaoTemp = transicoes[indice]
+            #print "TTT ", transicaoTemp
             if indice == 0:
                 #print "before ", transicoes[indice]
                 transicaoTemp = transicoes[indice]
@@ -120,16 +123,34 @@ def readRegras(arquivoRegras):
 
             # fim for de cada transicao
 
+
             #split pra pegar o estado e o que vai ser empilhado
             transicaoTemp = transicaoTemp.split(',')
-            #print transicaoTemp
+            #print "temporaria cacete ", transicaoTemp
+
+            empilha = transicaoTemp[1]
+            empilha = empilha.replace("<","")
+            empilha = empilha.replace(">","")
+
+
             #transicaoTemp[0] tem o estado
-            #transicaoTemp[1] tem o que vai ser empilhado
+            #transicaoTemp[1] -- empilha tem o que vai ser empilhado
+            for char in empilha:
+                # se for terminal
+                if char in string.lowercase:
+                    if char not in terminals:
+                        terminals.append(char)
+                #se for nao terminal
+                elif char in string.uppercase:
+                    if  char not in noTerminals:
+                        noTerminals.append(char)
+
+            #print "t ", terminalsprint "nt ", noTerminals
             transicoes[indice] = transicaoTemp
+            transicaoTemp[1] = empilha
+            #print "kkk ", transicoes[indice]
             #adicionar essas informacoes no vetor temporario de transicoes
             transicoesTemp.append([transicaoTemp[0], transicaoTemp[1]])
-
-
         #aqui ja pode adicionar a regra e suas transicoes
         regras.append(Regra(estado, removeDaFita, removeDaPilha, transicoesTemp))
         #print "after () --> ", transicoes
@@ -148,7 +169,6 @@ def buscaRegra(topoPilha): #estado atual tem uma tripla Ex. (0,&,E)
         if regras[indice]._removePilha == topoPilha:
             return indice
     return -1
-
 
 def removeDaFita(caractere, fitaTemp):
     #print "ch-->[", caractere, "]"
@@ -190,76 +210,13 @@ def removeDaPilha(caractere, pilhaTemp):
     return pilhaTemp
 
 
-def explosaoDeEstados(estadoInicial, pilhaTemp, fitaTemp):
+def explosaoDeEstados(regraInicial, pilhaTemp, fitaTemp):
 
-    while True:
-        a = input()
+    print regraInicial
 
-        print "\n\n"
-        print "fitaTemp-->[", fitaTemp, "]"
-        print "pilhaTemp-->[", pilhaTemp, "]"
-        if len(pilhaTemp) == 0:
-            if len(fitaTemp) == 0:
-                print "sentença valida"
-                sys.exit()
-            else:
-                print "cu sentença invalida"
-                sys.exit()
-        elif len(fitaTemp) == 0:
-            if len(pilhaTemp) == 0:
-                print "sentença valida"
-                sys.exit()
-            else:
-                print "sentença invalida"
-                sys.exit()
-
-        topoPilha = pilhaTemp[len(pilhaTemp)-1]
-        #pra saber qual regra sera aplicada
-        #regraAtual tem o indice ta regra
-        regraAtual = buscaRegra(topoPilha)
-        print "sei de nada"
-        for transicao in regras[regraAtual]._transicoes:
-            if len(pilhaTemp) == 0:
-                if len(fitaTemp) == 0:
-                    print "sentença valida"
-                    sys.exit()
-                else:
-                    print "cu sentença invalida"
-                    #sys.exit()
-                    continue
-            elif len(fitaTemp) == 0:
-                if len(pilhaTemp) == 0:
-                    print "sentença valida"
-                    sys.exit()
-                else:
-                    print "sentença invalida"
-                    #sys.exit()
-                    continue
-            else:
-                #print "FF ", fitaTemp
-                fitaAuxTemp = removeDaFita(regras[regraAtual]._removeFita, fitaTemp)
-                #print "FFF ", fitaTemp
-                if fitaAuxTemp == False:
-                    continue
-                else:
-                    fitaTemp = fitaAuxTemp
-
-                pilhaAuxTemp = removeDaPilha(regras[regraAtual]._removePilha, pilhaTemp)
-                if pilhaAuxTemp == False:
-                    continue
-                else:
-                    pilhaTemp = pilhaAuxTemp
-
-                empilhar = transicao[1] #transicao[1] é o que vai ser empilhado
-                print "empilhar--> [", empilhar, "]"
-                empilhar = empilhar[::-1]
-                for c in empilhar:
-                    if c != '&':
-                        pilhaTemp.append(c)
+    while len(fitaTemp) > 0 or len(pilhaTemp) > 0:
 
 
-
-        #a = input()
 
 
 try:
@@ -277,22 +234,23 @@ except:
 if(os.path.exists(arquivoFita)):
     if(os.path.exists(arquivoRegras)):
         readRegras(arquivoRegras)
-        #for regra in regras:
-        #    print "estado -->", regra._estado
-        #    print "remFita -->", regra._removeFita
-        #    print "remPilha -->", regra._removePilha
-        #    print "transicoes -->", regra._transicoes
+        for regra in regras:
+            print "estado -->", regra._estado
+            print "remFita -->", regra._removeFita
+            print "remPilha -->", regra._removePilha
+            print "transicoes -->", regra._transicoes
         readFita(arquivoFita)
         #print str(fita)
-        estadoInicial = []
-        estadoInicial.append(regras[0]._estado)
-        estadoInicial.append(regras[0]._removeFita)
-        estadoInicial.append(regras[0]._removePilha)
-        pilha.append(regras[0]._removePilha)
+        regraInicial = []
+        regraInicial.append(regras[0]._estado)
+        regraInicial.append(regras[0]._removeFita)
+        regraInicial.append(regras[0]._removePilha)
+        #pilha.append(regras[0]._removePilha)
         #print ('pilha --> ', pilha)
         #print ('fita --> ', fita)
         #print "est in ", estadoInicial
-        explosaoDeEstados(estadoInicial, pilha, fita)
+        #saida.append(regraInicial)
+        #explosaoDeEstados(regraInicial, pilha, fita)
         #print "cu de rola"
         #print "after"
         #print ('pilha --> ', pilha)
