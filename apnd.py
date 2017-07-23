@@ -9,11 +9,6 @@ listaTransicoes = [] # lista de objetos Transicao
 pilha = []
 terminals = []
 noTerminals = []
-PILHA_VAZIA_FITA_NAO = -1
-FITA_VAZIA_PILHA_NAO = -2
-CONTINUA = -3
-ESTADO_PILHA_FITA = 0
-
 
 class Regra(object):
     def __init__(self, estado, fita, pilha, transicoes):
@@ -142,7 +137,7 @@ def printTransicao(transicao):
     print "\n\n ### TRANSIÇÃO ### \n\n"
     print "(",transicao._estado,",",transicao._fita,",",transicao._pilha,",",transicao._regra,",",transicao._transicao,")"
 def printTransicoes():
-    print "\n\n ### TRANSIÇÕES ###\n\n"
+    print "### TRANSIÇÕES ###"
     for transicao in listaTransicoes:
         print "[",transicao._estado,",",transicao._fita,",",transicao._pilha,",",transicao._regra,",",transicao._transicao,"]"
 def printTransicaoRegra(TrRegra):
@@ -154,39 +149,6 @@ def buscaRegra(topoPilha): #estado atual tem uma tripla Ex. (0,&,E)
         if regras[indice]._removePilha == topoPilha:
             return indice
     return -1
-def aplicaTransicao(nomeRegra, indiceTr):
-    indice = buscaRegra(nomeRegra)
-
-    if indice < 0:
-        print "regra nao existe indice < 0"
-        sys.exit()
-
-    # nomeRegra é nao terminal
-    if nomeRegra not in string.lowercase:
-        #aplica substituicao
-        # nao mexe na fita
-        # altera a pilha
-        #faz substituicao
-        pilhaTemp = pilhaTemp[1:]
-        empilha = regras[indice]._transicoes[indiceTr][1]
-        #print "empilha ", empilha
-        listaTransicoes.append([fitaTemp,empilha,indiceTr])
-        pilhaTemp = empilha + pilhaTemp
-        #print "[", pilhaTemp, "]"
-        return True
-    else: # nomeRegra é terminal
-        if nomeRegra == fita[0]:
-            # terminais iguais
-            # remove inicio fita
-            #remove topo pilha
-            pilhaTemp = pilhaTemp[1:]
-            fitaTemp = fitaTemp[1:]
-            listaTransicoes.append([fitaTemp,pilhaTemp,indiceTr])
-            return True
-        else:
-            #terminais diferentes
-            return False
-            #print "remove transicao, terminais diferentes"
 def explosaoDeEstados(pilha, fita):
     LAST_TR_VALIDA = True
     PROX_TR = 0
@@ -194,67 +156,74 @@ def explosaoDeEstados(pilha, fita):
         if LAST_TR_VALIDA == True:
             #pega a ultima transicao
             if len(listaTransicoes) < 1:
+                print "acabou transicoes"
                 sys.exit()
             lastTransicao = listaTransicoes[len(listaTransicoes)-1]
+
+            if len(lastTransicao._pilha) == 0:
+                print "pilha vazia"
+                printTransicoes()
+                sys.exit()
             nomeRegra = lastTransicao._pilha[0]
             indR = buscaRegra(nomeRegra)
-            #print nomeRegra, indR
-            #para cada transicao de uma regra
-            #print "\n\n"
-            #print "(",printRegra(regras[indR]),")"
-            #print "\n\n"
-            for indT in range(PROX_TR , len(regras[indR]._transicoes)):
-                #aplica a transicao
-                infoTransicao = regras[indR]._transicoes[indT]
-                #printTransicaoRegra(infoTransicao)
 
+            if indR < 0:
+                print "regra nao existe"
+                sys.exit()
+
+            #para cada transicao de uma regra
+            for indT in range(PROX_TR , len(regras[indR]._transicoes)):
+                infoTransicao = regras[indR]._transicoes[indT]
+                #aplica a transicao
                 if nomeRegra not in terminals: #topo da pilha é um nao terminal
                     #faz substituicao do topo da pilha
                     #nao mexe na fita
-                    print "\n ### SUBSTITUICAO ## \n\n"
-                    print pilha
-                    print "tp pilha bf",type(pilha)
+                    print "\n### SUBSTITUICAO ##",
+                    print "p ant -->",pilha,
+                    #print "tp pilha bf",type(pilha),
                     pilha = pilha[1:]
-                    print pilha
-                    print "tp pilha af",type(pilha)
+
+                    #print "tp pilha af",type(pilha),
                     estado = infoTransicao._estado
                     empilha = infoTransicao._empilha
                     empilha = empilha[::-1] #inverter o que vai ser empilhado pra ficar melhor a insercao
-                    print "tp emp ", type(empilha)
-                    printTransicaoRegra(infoTransicao)
+                    #printTransicaoRegra(infoTransicao),
                     for char in empilha:
                         if char != '&':
                             pilha.insert(0,char)
                     newTr = Transicao(estado, fita, pilha, indR, indT)
                     listaTransicoes.append(newTr)
+                    print "p dep -->",pilha
+                    printTransicoes()
                     LAST_TR_VALIDA = True
                     PROX_TR = 0
+                    input("NTerm")
                     break
-                else: #topo da pilha é um terminal
+                else:
+                    #topo da pilha é um terminal
                     #verificar se o inicio da fita é igual ao topo da pilha
                     if nomeRegra == fita[0]: #inicio fita == topoPilha
-                        print "\n\n ### REDUCAO ### \n\n"
+                        print "\n### REDUCAO ###"
                         #fazer reducao
                         #remover inicio da fita e topo da pilha
                         estado = infoTransicao._estado
                         empilha = infoTransicao._empilha
                         empilha = empilha[::-1] #inverter o que vai ser empilhado pra ficar melhor a insercao
-                        print pilha
-                        print "tp pilha bf",type(pilha)
+                        print "p ant -->",pilha,
                         pilha = pilha[1:]
-                        print pilha
-                        print "tp pilha af",type(pilha)
-                        printTransicaoRegra(infoTransicao)
-                        #print pilha
+                        print "f ant -->", fita,
                         fita = fita[1:]
-                        #print fita
                         for char in empilha:
                             if char != '&':
                                 pilha.insert(0,char)
                         newTr = Transicao(estado,fita,pilha,indR,indT)
                         listaTransicoes.append(newTr)
+                        print "p dep -->",pilha,
+                        print "f dep -->",fita
+                        printTransicoes()
                         LAST_TR_VALIDA = True
                         PROX_TR = 0
+                        input("Term")
                         break
                     else: #topo pilha e inicio fita TERMINAIS mas DIFERENTES
                         print "\n\n ### topo pilha inicio fita nao batem ### \n\n"
@@ -323,10 +292,9 @@ if(os.path.exists(arquivoFita)):
         #    print "\n"
 
         estadoInicial = regraInicial._estado
-        primeiraTransicao = Transicao(estadoInicial,fita[0],pilha[0],-1,-1)
+        primeiraTransicao = Transicao(estadoInicial,fita,pilha,-1,-1)
         listaTransicoes.append(primeiraTransicao)
         explosaoDeEstados(pilha,fita)
-
 
     else:
         print ("arquivo com as regras nao existe")
