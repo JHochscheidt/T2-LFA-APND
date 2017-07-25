@@ -166,8 +166,9 @@ def explosaoDeEstados(pilha, fita):
     while len(pilha) > 0 or len(fita) > 0 or len(listaTransicoes) > 0:
 
         if listaTransicoes == 0:
-            print "nao ha mais transicoes"
-            sys.exit()
+            print "\n ### ---Sentença inválida --- ###\n"
+            printTransicoes()
+            return
 
         if LAST_TR_VALIDA == True:
             #pegar a ultima transicao
@@ -175,15 +176,13 @@ def explosaoDeEstados(pilha, fita):
             if len(lastTr._pilha) == 0:
                 #pilha vazia
                 if len(fita) == 0:
-                    #print "reconheceu a sentença"
-                    #print "mostrar a saida"
+                    print "\n ### ---SENTENÇA VÁLIDA --- ###\n"
                     printTransicoes()
-                    print "\n\n ### ---SENTENÇA VÁLIDA --- ###"
-                    sys.exit()
+                    return
                 else:
-                    print "sentença invalida"
-                    print "mostrar saida"
-                    sys.exit()
+                    print "\n ### ---SENTENÇA INVÁLIDA --- ###\n"
+                    printTransicoes()
+                    return
 
             topoPilha = lastTr._pilha[0]
 
@@ -200,18 +199,16 @@ def explosaoDeEstados(pilha, fita):
                     #se sim faz REDUCAO
                     #se nao, busca por proximo transicao possivel
                     if len(fita) == 0:
-                        print "fita vazia"
                         if len(pilha) != 0:
-                            print "nao sei"
                             listaTransicoes.pop()
                             pilha = listaTransicoes[len(listaTransicoes)-1]._pilha
                             fita = listaTransicoes[len(listaTransicoes)-1]._fita
                             proxima_transicao = 0
                             LAST_TR_VALIDA = False
                         else:
-                            print "reconheceu a sentença"
-                            print "printar saida"
-                            sys.exit()
+                            print "\n ### ---SENTENÇA VÁLIDA --- ###\n"
+                            printTransicoes()
+                            return
                     elif topoPilha == fita[0]:
                         #topoPilha e inicia fita IGUAISs
 
@@ -233,7 +230,9 @@ def explosaoDeEstados(pilha, fita):
                         #se o estado anterior ainda possui transicoes possiveis
                         if last_transicao < (len(regras[int(last_regra)]._transicoes)-1):
                             if len(listaTransicoes) == 0:
-                                print "list vazia"
+                                print "\n ### ---SENTENÇA INVÁLIDA --- ###\n"
+                                printTransicoes()
+                                return
                             listaTransicoes.pop()
                             pilha = listaTransicoes[len(listaTransicoes)-1]._pilha
                             fita = listaTransicoes[len(listaTransicoes)-1]._fita
@@ -241,7 +240,6 @@ def explosaoDeEstados(pilha, fita):
                             LAST_TR_VALIDA = True
                             continue
                         else:
-                            print "nao sei"
                             listaTransicoes.pop()
                             pilha = listaTransicoes[len(listaTransicoes)-1]._pilha
                             fita = listaTransicoes[len(listaTransicoes)-1]._fita
@@ -275,9 +273,9 @@ def explosaoDeEstados(pilha, fita):
             if last_transicao < (len(regras[last_regra]._transicoes)-1):
                 listaTransicoes.pop()
                 if len(listaTransicoes) == 0:
-                    print "list vazia"
-                    print "sentença invalida"
-                    sys.exit()
+                    print "\n ### ---SENTENÇA INVÁLIDA --- ###\n"
+                    printTransicoes()
+                    return
                 pilha = listaTransicoes[len(listaTransicoes)-1]._pilha
                 fita = listaTransicoes[len(listaTransicoes)-1]._fita
                 proxima_transicao = last_transicao + 1
@@ -295,13 +293,18 @@ try:
     arquivoFita = sys.argv[1]
     arquivoRegras = sys.argv[2]
 except:
-    print ("Erro nos parametros")
+    print ("Erro nos parametros. Os parametros para execucao são: ")
+    print ("python <arquivo_executavel.py> <arquivo_com_sentenca.txt> <arquivo_com_regras.txt>" )
     sys.exit()
 
 if(os.path.exists(arquivoFita)):
     if(os.path.exists(arquivoRegras)):
         readRegras(arquivoRegras)
         readFita(arquivoFita)
+        entrada = ''
+        for char in fita:
+            entrada+=char
+
         terminals.sort()
         noTerminals.sort()
         regraInicial = Regra(regras[0]._estado, regras[0]._removeFita, regras[0]._removePilha, regras[0]._transicoes)
@@ -322,6 +325,8 @@ if(os.path.exists(arquivoFita)):
         primeiraTransicao = Transicao(estadoInicial,fita,pilha,-1,-1)
         listaTransicoes.append(primeiraTransicao)
         explosaoDeEstados(pilha,fita)
+
+        print "Entrada --> [", entrada, "]"
 
     else:
         print ("arquivo com as regras nao existe")
