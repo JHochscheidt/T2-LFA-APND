@@ -38,12 +38,8 @@ def readFita(arquivoFita):
     for linha in fitaTemp:
         linha = linha.replace("\n", "")
         linha = linha.replace(" ", "")
-        #fita.append(linha)
         for c in linha:
             fita.append(c)
-
-    #print fita
-    #input("hue")
 def readRegras(arquivoRegras):
     file = open(arquivoRegras, 'r')
     arq_regras = file.readlines()
@@ -54,7 +50,6 @@ def readRegras(arquivoRegras):
         ## primeira parte é a readRegras
         ## segunda parte sao as transicoes
         linha = linha.split('=')
-        #tratar primeira parte linha[0]
         regra = linha[0]
         if regra[0] != '(' or regra[-1] != ')':
             print ("erro na declaracao da regra" + str(regra))
@@ -112,15 +107,12 @@ def readRegras(arquivoRegras):
                 elif char in string.uppercase:
                     if  char not in noTerminals:
                         noTerminals.append(char)
-
             newTransicaoRegra = TransicaoRegra(estado,empilha)
-
             #adicionar essas informacoes no vetor temporario de transicoes
             transicoesTemp.append(newTransicaoRegra)
         #aqui ja pode adicionar a regra e suas transicoes
         newRegra = Regra(estado, removeDaFita, removeDaPilha, transicoesTemp)
         regras.append(newRegra)
-    #fim do for pra cada regra (cada linha do arquivo)
 def printRegras():
     print "\n\n###REGRAS ###\n\n"
     for regra in regras:
@@ -128,11 +120,9 @@ def printRegras():
         print "(",regra._estado,",", regra._removeFita,",",regra._removePilha,") =",
         for transicao in regra._transicoes:
             print "(",transicao._estado,",", transicao._empilha,")",
-            #printTransicaoRegra(transicao)
         print "\n"
 def printRegra(regra):
     print "\n\n###REGRA ###\n\n"
-    #print "qt transicoes ", len(regra._transicoes)
     print "(",regra._estado,",", regra._removeFita,",",regra._removePilha,") =",
     for transicao in regra._transicoes:
         print "(",transicao._estado,",", transicao._empilha,")",
@@ -143,11 +133,17 @@ def printTransicao(transicao):
 def printTransicoes():
     print "### TRANSIÇÕES ###"
     for transicao in listaTransicoes:
-        print "[",transicao._estado,",",transicao._fita,",",transicao._pilha,",",transicao._regra,",",transicao._transicao,"]"
+        fitaTr = ''
+        pilhaTr = ''
+        for char in transicao._fita:
+            fitaTr+=char
+        for char in transicao._pilha:
+            pilhaTr+=char
+        print "[",transicao._estado,",", fitaTr ,",",pilhaTr,"]"
+        #print "[",transicao._estado,",",transicao._fita,",",transicao._pilha,",",transicao._regra,",",transicao._transicao,"]"
 def printTransicaoRegra(TrRegra):
     print "\n\n ### TRANSIÇÃO REGRA ### \n\n"
     print "(",TrRegra._estado,",",TrRegra._empilha,")",
-# busca regra pelo que ta no topo da pilha
 def buscaRegra(topoPilha): #estado atual tem uma tripla Ex. (0,&,E)
     for indice in range(0, len(regras)):
         if regras[indice]._removePilha == topoPilha:
@@ -156,43 +152,33 @@ def buscaRegra(topoPilha): #estado atual tem uma tripla Ex. (0,&,E)
 def explosaoDeEstados(pilha, fita):
     global LAST_TR_VALIDA
     global proxima_transicao
-
-
     firstTr = listaTransicoes[len(listaTransicoes)-1]
     topoPilha = listaTransicoes[len(listaTransicoes)-1]._pilha
     indR = buscaRegra(topoPilha)
-
-
     while len(pilha) > 0 or len(fita) > 0 or len(listaTransicoes) > 0:
-
         if listaTransicoes == 0:
-            print "\n ### ---Sentença inválida --- ###\n"
             printTransicoes()
+            print "\n ### ---Sentença inválida --- ###\n"
             return
-
         if LAST_TR_VALIDA == True:
             #pegar a ultima transicao
             lastTr = listaTransicoes[len(listaTransicoes)-1]
             if len(lastTr._pilha) == 0:
                 #pilha vazia
                 if len(fita) == 0:
-                    print "\n ### ---SENTENÇA VÁLIDA --- ###\n"
                     printTransicoes()
+                    print "\n ### ---SENTENÇA VÁLIDA --- ###\n"
                     return
                 else:
-                    print "\n ### ---SENTENÇA INVÁLIDA --- ###\n"
                     printTransicoes()
+                    print "\n ### ---SENTENÇA INVÁLIDA --- ###\n"
                     return
-
             topoPilha = lastTr._pilha[0]
-
             #indice da regra
             indR = buscaRegra(topoPilha)
-
             #para cada transicao da regra
             for indT in range(proxima_transicao, len(regras[indR]._transicoes)):
                 #se topo da pilha é terminal
-
                 #TERMINAL
                 if topoPilha in terminals:
                     #verifica se é igual ao inicio da fita
@@ -206,19 +192,17 @@ def explosaoDeEstados(pilha, fita):
                             proxima_transicao = 0
                             LAST_TR_VALIDA = False
                         else:
-                            print "\n ### ---SENTENÇA VÁLIDA --- ###\n"
                             printTransicoes()
+                            print "\n ### ---SENTENÇA VÁLIDA --- ###\n"
                             return
                     elif topoPilha == fita[0]:
-                        #topoPilha e inicia fita IGUAISs
-
+                        #topoPilha e inicia fita IGUAIS
                         #fazer reducao
                         fita = fita[1:]
                         pilha = pilha[1:]
                         estado = regras[indR]._transicoes[indT]._estado
                         newTr = Transicao(estado, fita, pilha, indR, indT)
                         listaTransicoes.append(newTr)
-                        #printTransicoes()
                         proxima_transicao = 0
                         LAST_TR_VALIDA = True
                         break
@@ -226,12 +210,11 @@ def explosaoDeEstados(pilha, fita):
                         #topo pilha e inicio fita DIFERENTES
                         last_regra = listaTransicoes[len(listaTransicoes)-1]._regra
                         last_transicao = listaTransicoes[len(listaTransicoes)-1]._transicao
-
                         #se o estado anterior ainda possui transicoes possiveis
                         if last_transicao < (len(regras[int(last_regra)]._transicoes)-1):
                             if len(listaTransicoes) == 0:
-                                print "\n ### ---SENTENÇA INVÁLIDA --- ###\n"
                                 printTransicoes()
+                                print "\n ### ---SENTENÇA INVÁLIDA --- ###\n"
                                 return
                             listaTransicoes.pop()
                             pilha = listaTransicoes[len(listaTransicoes)-1]._pilha
@@ -246,22 +229,18 @@ def explosaoDeEstados(pilha, fita):
                             proxima_transicao = 0
                             LAST_TR_VALIDA = False
                             break
-
                 #NAO TERMINAL
                 elif topoPilha in noTerminals:
                     #faz SUBSTITUICAO
                     pilha = pilha[1:]
                     estado = regras[indR]._transicoes[indT]._estado
                     empilha = regras[indR]._transicoes[indT]._empilha
-                    #print empilha
                     empilha = empilha[::-1]
-                    #print empilha
                     for char in empilha:
                         if char != '&':
                             pilha.insert(0,char)
                     newTr = Transicao(estado, fita, pilha, indR, indT)
                     listaTransicoes.append(newTr)
-                    #printTransicoes()
                     LAST_TR_VALIDA = True
                     proxima_transicao = 0
                     break
@@ -273,21 +252,33 @@ def explosaoDeEstados(pilha, fita):
             if last_transicao < (len(regras[last_regra]._transicoes)-1):
                 listaTransicoes.pop()
                 if len(listaTransicoes) == 0:
-                    print "\n ### ---SENTENÇA INVÁLIDA --- ###\n"
                     printTransicoes()
+                    print "\n ### ---SENTENÇA INVÁLIDA --- ###\n"
                     return
                 pilha = listaTransicoes[len(listaTransicoes)-1]._pilha
                 fita = listaTransicoes[len(listaTransicoes)-1]._fita
                 proxima_transicao = last_transicao + 1
                 LAST_TR_VALIDA = True
             else:
-                #print "nao sei"
                 listaTransicoes.pop()
                 pilha = listaTransicoes[len(listaTransicoes)-1]._pilha
                 fita = listaTransicoes[len(listaTransicoes)-1]._fita
                 proxima_transicao = 0
                 LAST_TR_VALIDA = False
-
+    if len(pilha) == 0:
+        if len(fita) ==0:
+            printTransicoes()
+            print "\n ### ---SENTENÇA VÁLIDA --- ###\n"
+            return
+        else:
+            printTransicoes()
+            print "\n ### ---SENTENÇA INVÁLIDA --- ###\n"
+            return
+    else:
+        if len(listaTransicoes) == 0:
+            printTransicoes()
+            print "\n ### ---SENTENÇA INVÁLIDA --- ###\n"
+            return
 
 try:
     arquivoFita = sys.argv[1]
@@ -304,30 +295,16 @@ if(os.path.exists(arquivoFita)):
         entrada = ''
         for char in fita:
             entrada+=char
-
         terminals.sort()
         noTerminals.sort()
         regraInicial = Regra(regras[0]._estado, regras[0]._removeFita, regras[0]._removePilha, regras[0]._transicoes)
         #assumindo que a primeira regra é sempre o estado inicial
         pilha.append(regraInicial._removePilha)
-        #or regra in regras:
-        #    print type(regra._estado),
-        #    print type(regra._removeFita),
-        #    print type(regra._removePilha),
-        #    for transicao in regra._transicoes:
-        #        print type(transicao._estado),
-        #        print type(transicao._empilha),
-        #    print "\n"
-        #printRegras()
-        #print terminals
-        #print noTerminals
         estadoInicial = regraInicial._estado
         primeiraTransicao = Transicao(estadoInicial,fita,pilha,-1,-1)
         listaTransicoes.append(primeiraTransicao)
         explosaoDeEstados(pilha,fita)
-
         print "Entrada --> [", entrada, "]"
-
     else:
         print ("arquivo com as regras nao existe")
         sys.exit()
